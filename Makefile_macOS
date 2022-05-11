@@ -1,0 +1,27 @@
+#
+#  makefile (macOS)
+#  demultiplex_satay
+#
+#  Copyright © 2022 Jordan Berg. All rights reserved.
+#
+
+ROOT_DIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
+
+CXX = c++
+
+SRCS = ${ROOT_DIR}/src/main.cpp ${ROOT_DIR}/src/fastqreader.cpp ${ROOT_DIR}/src/read.cpp ${ROOT_DIR}/src/sequence.cpp
+OBJS = ${SRCS:.cpp=.o}
+
+MAIN = ${ROOT_DIR}/demultiplex_satay
+
+all: ${MAIN} clean
+	@echo fastp_lite compiled successfully
+
+${MAIN}: ${OBJS}
+	${CXX} ${CXXFLAGS} ${OBJS} -o ${MAIN}
+
+.cpp.o:
+	${CXX} ${CXXFLAGS} -c $< -o $@
+
+clean:
+	rm ${ROOT_DIR}/src/*.o
