@@ -19,9 +19,12 @@
 
 using namespace std;
 
+// Global variables
 #define DEMULTIPLEX_SATAY_VER "0.0.1"
+#define UNASSIGNED_VALUE "unassigned"
 typedef map<string, string> BarcodeMap;
 typedef map<string, vector<string>> IndexMap;
+
 
 // Timer functions
 clock_t START_TIMER;
@@ -237,15 +240,15 @@ int main(int argc, char* argv[]) {
     start(); // start elapsed time
 
     // Read barcode file
-    vector<string> barcode_index, barcode_sample;
-    readBarcodes(barcode_file, &barcode_index, &barcode_sample);
+    vector<string> barcodeindex, barcode_sample;
+    readBarcodes(barcode_file, &barcodeindex, &barcode_sample);
     int barcode_number;
-    barcode_number = barcode_index.size();
+    barcode_number = barcodeindex.size();
 
     // Populate barcode map
     BarcodeMap barcode_dictionary;
-    for (int i = 0; i < barcode_index.size(); ++i) {
-        barcode_dictionary[barcode_index[i]] = barcode_sample[i];
+    for (int i = 0; i < barcodeindex.size(); ++i) {
+        barcode_dictionary[barcodeindex[i]] = barcode_sample[i];
     }
 
     //fstream output(out_file, std::fstream::in | std::fstream::out | std::fstream::trunc); // prepare output file
@@ -256,29 +259,31 @@ int main(int argc, char* argv[]) {
     // Initialize index matrix
     IndexMap index_dictionary;
 
-    // Process reads from FASTQ file to identify read sample indices
+    // Process reads from index FASTQ file to identify read sample indices
     while (true) {
+
         r1 = reader1.read();
+
         if (r1 == NULL) {
             break;
         } else {
-            string _name, _index;
-            r1->toString();
-            _name = r1 -> mName;
-            _index = r1 -> mSeq.mStr;
+            string name, index;
+            r1 -> toString();
+            name = r1 -> mName;
+            index = r1 -> mSeq.mStr;
                  
             // Fuzzy search index against barcodes for sample labels
-            string matched_index, sample_name;
+            string matchedindex, samplename;
 
             // Check if reverse complement in barcode dictionary
             string rev_comp;
-            rev_comp = reverseComplement(_index);
+            rev_comp = reverseComplement(index);
             
-            // Check if fuzzy _index in barcode_dictionary
+            // Check if fuzzy index in barcode_dictionary
             string fuzzy_string;
             vector<string> fuzzy_indices, fuzzy_samples;
             for (BarcodeMap::iterator i = barcode_dictionary.begin(); i != barcode_dictionary.end(); ++i) {
-                if (fuzzyMatch(_index, i, fuzzy_threshold)) {
+                if (fuzzyMatch(index, i, fuzzy_threshold)) {
                     fuzzy_indices.push_back(i);
                     fuzzy_samples.push_back(barcode_dictionary[i]);
                 }
@@ -295,36 +300,68 @@ int main(int argc, char* argv[]) {
             }
 
             // Update values
-            if (barcode_dictionary.contains(_index)) {
-                matched_index = _index;
-                sample_name = barcode_dictionary[_index];
+            if (barcode_dictionary.contains(index)) {
+                matchedindex = index;
+                samplename = barcode_dictionary[index];
             } else if (barcode_dictionary.contains(rev_comp)) {
-                matched_index = rev_comp;
-                sample_name = barcode_dictionary[rev_comp];
+                matchedindex = rev_comp;
+                samplename = barcode_dictionary[rev_comp];
             } else if () {
+                // add if fuzzy match array is 1
 
 
             } else if () {
+                // add if fuzzy match array is 1
 
 
             } else {
-
+                matchedindex = UNASSIGNED_VALUE;
+                samplename = UNASSIGNED_VALUE;
             }
 
 
             vector<string> strVec;
-            strVec.push_back(_index);
-            strVec.push_back(matched_index);
-            strVec.push_back(sample_name);
+            strVec.push_back(index);
+            strVec.push_back(matchedindex);
+            strVec.push_back(samplename);
 
             // Add read to index record
-            //index_dictionary[_name] = strVec;
+            index_dictionary[name] = strVec;
         }
+
         delete r1;
     }
 
-    //output.close(); // close output file
+    // Parse out samples from main FASTQ read file
 
+    // Read sequence fastq file
+    FastqReader reader2 (reads_file); // initialize input FASTQ file
+    Read* r2 = NULL;
+
+    // Process reads from index FASTQ file to identify read sample indices
+    while (true) {
+
+        r2 = reader2.read();
+
+        if (r2 == NULL) {
+            break;
+        } else {
+
+
+
+
+        }
+
+        // Close output files
+        //output.close(); // close output file
+
+        
+        delete r2;
+    }
+
+    
+
+    // Exit
     stop(); // stop and print elapsed time
     cout.flush();
     return 0;
