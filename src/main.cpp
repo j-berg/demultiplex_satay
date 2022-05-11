@@ -215,9 +215,9 @@ int main(int argc, char* argv[]) {
     //input file - read indices
     cmd.add<string>("index", 'i', "Index fastq file name", true); 
     //input file - read indices
-    cmd.add<string>("barcodes", 'b', "File name for barcodes (.tsv or .txt)", true); 
+    cmd.add<string>("barcodes", 'b', "Barcodes table file name (tab-delimited)", true); 
     //threshold for fuzzy searching of read indices
-    cmd.add<int>("fuzzy-threshold", 'f', "Length of UMI, default is 1", false, 1); 
+    cmd.add<int>("fuzzy-threshold", 'f', "Fuzzy index match threshold", false, 1); 
 
     // Parse arguments
     cmd.parse_check(argc, argv);
@@ -488,7 +488,6 @@ int main(int argc, char* argv[]) {
                 output << r2->toString();
                 output.close();
             }
-
         }  
 
         delete r2;
